@@ -1,58 +1,58 @@
 import React from "react";
-import addNotification from "react-push-notification";
+import avatar from "./avatar.png";
 import logo from "./logo.png";
 
+import notificationSound from "./mixkit-software-interface-start-2574.wav";
+
 function App() {
-  // const clickToNotify = () => {
-  //   if (Notification.permission !== "granted") {
-  //     Notification.requestPermission().then((permission) => {
-  //       if (permission === "granted") {
-  //         showNotification();
-  //       }
-  //     });
-  //   } else {
-  //     showNotification();
-  //   }
-  // };
+  const playNotificationSound = () => {
+    const audio = new Audio(notificationSound);
+    audio.play().catch((error) => {
+      console.error("Error playing sound:", error);
+    });
+  };
 
-  // const showNotification = () => {
-  //   addNotification({
-  //     title: "First Push Notification",
-  //     subtitle: "subtitle",
-  //     message: "Hello folks, this is my first notification",
-  //     // theme: "red",
-  //     // backgroundTop: "green",
-  //     // backgroundBottom: "darkgreen", //optional, background color of bottom container.
-  //     // colorTop: "green", //optional, font color of top container.
-  //     // closeButton: "Go away",
-  //     duration: 4000,
-  //     icon: logo,
-  //     native: true,
-  //     onClick: () => (window.location = "https://www.youtube.com/"),
-  //     vibrate: [100, 200, 300],
-  //     silent: false,
-  //   });
-  // };
-
-  const clickToNotify = () => {
+  const showNotification = (options) => {
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
-        new Notification("Notification", {
-          title: "push Notification",
-          body: "hey how are you man",
-          // data: {
-          //   hello: "world",
-          // },
-          icon: logo,
-          onClick: (e) => window.open("https://www.youtube"),
-        });
+        const notification = new Notification(options.title, options);
+        playNotificationSound();
 
-        // notification.addEventListener("click", (e) => {
-        //   e.preventDefault();
-        //   window.open("https://www.youtube.com/");
-        // });
+        setTimeout(() => {
+          notification.close();
+        }, options.duration || 5000);
+
+        notification.onclick = (e) => {
+          e.preventDefault();
+          window.open(options?.navigator?.url, options?.navigator?.target);
+          notification.close();
+        };
+      } else if (permission === "denied") {
+        alert(
+          "Notification permission has been denied. Please enable notifications in your browser settings. Here’s how:\n\n1. Click the lock icon next to the URL in the address bar.\n2. Select 'Site settings'.\n3. In the 'Permissions' section, find 'Notifications' and select 'Allow'."
+        );
+      } else {
+        alert(
+          "Notification permission is required to show notifications. Please enable notifications in your browser settings. Here’s how:\n\n1. Click the lock icon next to the URL in the address bar.\n2. Select 'Site settings'.\n3. In the 'Permissions' section, find 'Notifications' and select 'Allow'."
+        );
       }
     });
+  };
+
+  const clickToNotify = () => {
+    const options = {
+      title: "Hey everyone",
+      body: "Hey, how are you?",
+      icon: avatar,
+      badges: logo,
+      requireInteraction: true,
+      data: { hello: "world" },
+      vibrate: [200, 100, 200],
+      duration: 10000,
+      silent: false,
+      navigator: { url: "https://www.youtube.com/", target: "_blank" },
+    };
+    showNotification(options);
   };
 
   return (
